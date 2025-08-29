@@ -18,6 +18,14 @@ type Message struct {
 	Otchestvo string `json:"otchestvo"`
 }
 
+type Messagev2 struct {
+	Series     int    `json:"Series"`
+	Number     int    `json:"Number"`
+	FirstName  string `json:"FirstName"`
+	LastName   string `json:"LastName"`
+	MiddleName string `json:"MiddleName"`
+}
+
 func saveHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Только POST", http.StatusMethodNotAllowed)
@@ -39,16 +47,24 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	msgv2 := Messagev2{
+		Series:     msg.Seria,
+		Number:     msg.Nomer,
+		FirstName:  msg.Umia,
+		LastName:   msg.Famlia,
+		MiddleName: msg.Otchestvo,
+	}
 	// создаём папку, если её нет
 	if _, err := os.Stat("data"); os.IsNotExist(err) {
 		os.Mkdir("data", 0755)
 	}
 
 	// формируем имя файла по времени
-	filename := fmt.Sprintf("data/%d.json", msg.Seria)
+	filename := fmt.Sprintf("data/%d.json", msgv2.Series)
+	dataToSave, _ := json.MarshalIndent(msgv2, "", "  ")
 
 	// записываем JSON как есть
-	if err := ioutil.WriteFile(filename, body, 0644); err != nil {
+	if err := ioutil.WriteFile(filename, dataToSave, 0644); err != nil {
 		http.Error(w, "Ошибка записи", http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +84,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := fmt.Sprintf("data/%s", file)
+	path := fmt.Sprintf("datav2/%s", file)
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -76,33 +92,25 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ms Message
+	var ms Messagev2
 	if err := json.Unmarshal(data, &ms); err != nil {
 		http.Error(w, "Ошибка JSON", http.StatusInternalServerError)
 		return
 	}
 
-	resp := struct {
+	respp := struct {
 		Umia      string `json:"Имя"`
 		Famlia    string `json:"Фамилия"`
 		Otchestvo string `json:"Отчество"`
 	}{
-		Umia:      ms.Umia,
-		Famlia:    ms.Famlia,
-		Otchestvo: ms.Otchestvo,
+		Umia:      ms.FirstName,
+		Famlia:    ms.LastName,
+		Otchestvo: ms.MiddleName,
 	}
 
 	// выставляем правильный Content-Type
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-
-type Messagev2 struct {
-	Series     int    `json:"series"`
-	Number     int    `json:"Number"`
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
-	MiddleName string `json:"middleName"`
+	json.NewEncoder(w).Encode(respp)
 }
 
 func saveHandlerv2(w http.ResponseWriter, r *http.Request) {
