@@ -59,7 +59,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		os.Mkdir("data", 0755)
 	}
 
-	// формируем имя файла по времени
+	// формируем имя файла по номеру паспорта
 	filename := fmt.Sprintf("data/%d.json", msgv2.Series)
 	dataToSave, _ := json.MarshalIndent(msgv2, "", "  ")
 
@@ -139,7 +139,7 @@ func saveHandlerv2(w http.ResponseWriter, r *http.Request) {
 		os.Mkdir("datav2", 0755)
 	}
 
-	// формируем имя файла по времени
+	// формируем имя файла по номеру паспорта
 	filename := fmt.Sprintf("datav2/%d.json", msg.Series)
 
 	// записываем JSON как есть
