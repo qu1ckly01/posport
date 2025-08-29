@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"posport/fileupdater"
 )
 
 // структура, под которую будем принимать JSON
@@ -184,6 +185,11 @@ func getHandlerv2(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	srcDir := "data"
+	dstDir := "datav2"
+
+	go fileupdater.UpdateJSONFiles(srcDir, dstDir)
+
 	http.HandleFunc("/save", saveHandler)
 	http.HandleFunc("/get", getHandler)
 
