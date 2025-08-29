@@ -126,12 +126,12 @@ func saveHandlerv2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// создаём папку, если её нет
-	if _, err := os.Stat("data/v2"); os.IsNotExist(err) {
-		os.Mkdir("data/v2", 0755)
+	if _, err := os.Stat("datav2"); os.IsNotExist(err) {
+		os.Mkdir("datav2", 0755)
 	}
 
 	// формируем имя файла по времени
-	filename := fmt.Sprintf("data/v2/%d.json", msg.Series)
+	filename := fmt.Sprintf("datav2/%d.json", msg.Series)
 
 	// записываем JSON как есть
 	if err := ioutil.WriteFile(filename, body, 0644); err != nil {
@@ -154,7 +154,7 @@ func getHandlerv2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := fmt.Sprintf("data/v2/%s", file)
+	path := fmt.Sprintf("datav2/%s", file)
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
